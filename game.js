@@ -5,9 +5,9 @@
 /*******************************************************/
 console.log("%c game.js", "color: blue;");
 const SCREEN_WIDTH = 650;
-const SCREEN_HIEGHT = 550;
+const SCREEN_HEIGHT = 550;
 const FIELD_WIDTH = 2152;
-const FIELD_HIEGHT = 2368;
+const FIELD_HEIGHT = 2368;
 var nextSpawn = 0;
 var defenderSpeed = 4;
 var level = 0;
@@ -36,26 +36,26 @@ function preload() {
 /*******************************************************/
 function setup() {
     console.log("setup: ");
-    cnv = new Canvas(SCREEN_WIDTH, SCREEN_HIEGHT);
+    cnv = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
     /** these sprites creates the boundry for the game**/
-    wallFloor =  new Sprite(SCREEN_WIDTH/2,  SCREEN_HIEGHT/2+FIELD_HIEGHT/2, FIELD_WIDTH, 4, 's');
-    wallTop =  new Sprite(SCREEN_WIDTH/2, SCREEN_HIEGHT/2-FIELD_HIEGHT/2, FIELD_WIDTH, 4, 's');
-    wallLeft =  new Sprite(SCREEN_WIDTH/2-FIELD_WIDTH/2,  SCREEN_HIEGHT/2, 4, FIELD_HIEGHT, 's');
-    wallRight =  new Sprite(SCREEN_WIDTH/2+FIELD_WIDTH/2,  SCREEN_HIEGHT/2, 4, FIELD_HIEGHT, 's');
+    wallFloor =  new Sprite(SCREEN_WIDTH/2,  SCREEN_HEIGHT/2+FIELD_HEIGHT/2, FIELD_WIDTH, 4, 's');
+    wallTop =  new Sprite(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-FIELD_HEIGHT/2, FIELD_WIDTH, 4, 's');
+    wallLeft =  new Sprite(SCREEN_WIDTH/2-FIELD_WIDTH/2,  SCREEN_HEIGHT/2, 4, FIELD_HEIGHT, 's');
+    wallRight =  new Sprite(SCREEN_WIDTH/2+FIELD_WIDTH/2,  SCREEN_HEIGHT/2, 4, FIELD_HEIGHT, 's');
     wallFloor.color = color("black");
     wallTop.color = color("black");
     wallLeft.color = color("black");
     wallRight.color = color("black");
     defenders = new Group();
     defendersAll = new Group();
-    box = new Sprite(SCREEN_WIDTH/2, SCREEN_HIEGHT/2, 4304, 4736, 'n');
+    box = new Sprite(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 4304, 4736, 'n');
     box.addImage(field);
-    field.resize(FIELD_WIDTH, FIELD_HIEGHT);
+    field.resize(FIELD_WIDTH, FIELD_HEIGHT);
     ball1 = new Sprite(width/2, height/2, 40, 'd');
     ball1.addImage(ball);
     ball.resize(40, 40);
     text(score, 50, 50);
-    downArrow = new Sprite(SCREEN_WIDTH/2, SCREEN_HIEGHT/2, 200, 200,'n' )
+    downArrow = new Sprite(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 200, 200,'n' )
     downArrow.addImage(arrow);
     box1 = new Sprite(307, 1355, 150, 30,'k' )
     box1.color = 'white';
@@ -90,33 +90,45 @@ function setup() {
       if (event.code === 'ArrowLeft') { //makes the ball move left or right
         ball1.vel.x = -8;
         camera.zoomTo(1);
+        space = false;
       }
       else if (event.code === 'ArrowRight'){
         ball1.vel.x = 8;
         camera.zoomTo(1);
+        space = false;
       }
       else if (event.code === 'ArrowUp')  {
         ball1.vel.y = -8;
        camera.zoomTo(1);
+       space = false;
       }
       else if (event.code === 'ArrowDown')
         ball1.vel.y = 8;
         camera.zoomTo(1);
+        space = false;
     });
     
     
     
     document.addEventListener("keyup", function(event) { //this detects if the keys aren't being pressed
     
-      if (event.code === 'ArrowLeft') {
+      if (event.code === 'ArrowLeft' && space == false) {
         ball1.vel.x = 0;
+        camera.zoomTo(1);
       }
-      else if (event.code === 'ArrowRight')
+      else if (event.code === 'ArrowRight' && space == false){
         ball1.vel.x = 0;
-      else if (event.code === 'ArrowUp')  
+        camera.zoomTo(1);
+      }
+      else if (event.code === 'ArrowUp' && space == false) { 
         ball1.vel.y = 0;
-      else if (event.code === 'ArrowDown')
+        camera.zoomTo(1);
+      }
+      else if (event.code === 'ArrowDown' && space == false){
         ball1.vel.y = 0;
+        camera.zoomTo(1);
+      }
+        
     });
     
 }
@@ -182,7 +194,7 @@ function gameScreen(){//this is the game screen
     }
     if (space == true){
         ball1.moveTo(box1, 20)
-        camera.zoomTo(0.5);
+        camera.zoomTo(0.5);//makes the camera zoom out
     }
     if (space == false){
         camera.zoomTo(1);
@@ -212,7 +224,7 @@ function gameScreen(){//this is the game screen
 //all sprites drawn while the camera is on are drawn on the map not the camera
     box.draw()
     box.addImage(field);
-    field.resize(FIELD_WIDTH, FIELD_HIEGHT);
+    field.resize(FIELD_WIDTH, FIELD_HEIGHT);
     if(level < 1){//this makes the arrow only appear at the start of the game
         downArrow.draw();
     }
@@ -232,6 +244,11 @@ function gameScreen(){//this is the game screen
     text(score, 50, 50);
     ball1.collides(box1, goal);//this calls for the function for a goal
     ball1.collides(defendersAll, youDied);//this calls for the function to end game
+    for (i=0; i<defenders.length; i++) {
+        if(defenders[i].y <= SCREEN_HEIGHT/2-FIELD_HEIGHT/2){
+            defenders[i].remove(); 
+        }
+    }
 }
 /********end screen********/
 function endScreen(){
@@ -309,6 +326,3 @@ function resetGame(){ //reset all the variables
     timeInSeconds = 0;
     resetTime = millis();
 }
-/*******************************************************/
-//  END OF APP
-/*******************************************************/
