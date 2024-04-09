@@ -21,6 +21,11 @@ var screenSelector = "start";
 var defenders; //this is a group for the defenders that spawn at random times
 var defendersAll; //this is for all defenders and is use for losing the game
 var username;
+var leftKeyUp = true;
+var rightKeyUp = true;
+var upKeyUp = true;
+var downKeyUp = true;
+var validAgeAndName = false;
 /*******************************************************/
 // preload()
 // Called by P5 before setup
@@ -83,8 +88,10 @@ function setup() {
     function playerInput(event) {
         if(event.code === 'Enter' && screenSelector == "start"){
             getValue() //calls on the function that gets usernames and age
-            screenSelector = "game" //changes to the game screen
-            resetGame(); //resets the game
+            if(validAgeAndName == true){
+                screenSelector = "game" //changes to the game screen
+                resetGame(); //resets the game
+            }
         } else if(event.code === 'Enter' && screenSelector == "end"){
             screenSelector = "game" //changes to the game screen
             resetGame();//resets the game
@@ -95,21 +102,25 @@ function setup() {
         if (event.code === 'ArrowLeft') { //makes the ball move left or right
             ball1.vel.x = -8; // makes the ball move left
             camera.zoomTo(1); //sets the zoom to 1 when the ball is moving
+            leftKeyUp = false
             space = false; //stops the ball moving to the goal if key is pressed
         }
         else if (event.code === 'ArrowRight'){
             ball1.vel.x = 8;
             camera.zoomTo(1);
+            rightKeyUp = false
             space = false;
         }
         else if (event.code === 'ArrowUp')  {
             ball1.vel.y = -8;
             camera.zoomTo(1);
+            upKeyUp = false
             space = false;
         }
         else if (event.code === 'ArrowDown'){
             ball1.vel.y = 8;
             camera.zoomTo(1);
+            downKeyUp = false
             space = false;
         }
     });
@@ -120,18 +131,22 @@ function setup() {
         if (event.code === 'ArrowLeft' && space == false) { //this detects if the key is up and the space is false meaning the ball isn't moving to wards the goal
             ball1.vel.x = 0; //stops the ball from moving left
             camera.zoomTo(1); //sets the zoom to 1
+            leftKeyUp = true
         }
         else if (event.code === 'ArrowRight' && space == false){
             ball1.vel.x = 0;
             camera.zoomTo(1);
+            rightKeyUp = true
         }
         else if (event.code === 'ArrowUp' && space == false) { 
             ball1.vel.y = 0;
             camera.zoomTo(1);
+            upKeyUp = true
         }
         else if (event.code === 'ArrowDown' && space == false){
             ball1.vel.y = 0;
             camera.zoomTo(1);
+            downKeyUp = true
         }
         
     });
@@ -166,13 +181,15 @@ function getValue() {
     while (username == null || username == "") { // if the input is invalid it makes you put in a valid input
         username = prompt("Invalid what is your username?")
         if (username == null) {// if user clicks cancel it stops the progam
+          validAgeAndName = false
           screenSelector = "start";
           return;//ends the code
         }
     }
-    while (age == null || !regExp.test(age) || age < MINAGE || age > MAXAGE || isNaN(age) || age % 1 != 0){//this is for if the age is not an number or isn't in the age range
+    while (age == null || age == "" || !regExp.test(age) || age < MINAGE || age > MAXAGE || isNaN(age) || age % 1 != 0){//this is for if the age is not an number or isn't in the age range
         age = prompt("Invalid you must put an age between " + MINAGE + " and " + MAXAGE)
         if (age == null) {// if user clicks cancel it stops the progam
+            validAgeAndName = false
             screenSelector = "start";
             return;//ends the code
         } else if (age < MINAGE) {
@@ -183,6 +200,7 @@ function getValue() {
             return;//ends the code
         }
     }
+    validAgeAndName = true
     // Display the value in an alert 
     alert("Your username is " + username + " and you are old enough to play"); 
 } 
@@ -227,7 +245,7 @@ function gameScreen(){//this is the game screen
     }
     /**this makes the ball move to the goal**/
     let space; 
-    if (kb.pressing('space')){
+    if (kb.pressing('space') && leftKeyUp == true && rightKeyUp == true && upKeyUp == true && downKeyUp == true){//this makes sure all keys are up
         space = true;
     }
     if (space == true){
@@ -246,7 +264,7 @@ function gameScreen(){//this is the game screen
     defenders3.moveTo(ball1, 3)//makes the defender move towards the ball
     defenders3.rotateTowards(ball1, 0.1, 90);//makes the defender always face the ball
     /**this makes the two sprites move to between two spots on the game **/
-    if (defenders4.x == -475 && defenders4.y == 1250){
+   if (defenders4.x == -475 && defenders4.y == 1250){
         defenders4.moveTo(100, 825, defenderSpeed)
     }  else if (defenders4.x == 100 && defenders4.y == 825){
         defenders4.moveTo(-475, 1250, defenderSpeed)
@@ -306,6 +324,8 @@ function endScreen(){
     defenders3.y = 700;
     ball1.x = width/2; //stops the ball from moving
     ball1.y = height/2;
+    ball1.vel.x = 0; //stops the ball from moving
+    ball1.vel.y = 0;
     defenders3.x = SCREEN_WIDTH/2+FIELD_WIDTH/2; //this keeps the sprite in the same place till the game starts again
     defenders3.y = SCREEN_HEIGHT/2+FIELD_HEIGHT/2;
 }
